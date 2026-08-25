@@ -113,7 +113,7 @@
   <div class="controls">
   <div class="seg" id="lang"><button data-l="en" aria-pressed="true">English</button><button data-l="ka" aria-pressed="false">ქართული</button><button data-l="ru" aria-pressed="false">Русский</button></div>
   <input type="search" id="q" placeholder="Search brand, name, subcategory…">
-  <div class="seg wrapseg" id="filt"><button data-f="all" aria-pressed="true">All 3971</button><span class="grp">Shoes</span><button data-f="Shoes||Sneakers" aria-pressed="false">Sneakers 819</button><button data-f="Shoes||Slides" aria-pressed="false">Slides 577</button><button data-f="Shoes||Heels" aria-pressed="false">Heels 440</button><button data-f="Shoes||Mules" aria-pressed="false">Mules 283</button><button data-f="Shoes||Mary Janes" aria-pressed="false">Mary Janes 218</button><button data-f="Shoes||Loafers" aria-pressed="false">Loafers 202</button><button data-f="Shoes||Sandals" aria-pressed="false">Sandals 179</button><button data-f="Shoes||Ankle Boots" aria-pressed="false">Ankle Boots 177</button><button data-f="Shoes||Knee-High Boots" aria-pressed="false">Knee-High Boots 159</button><button data-f="Shoes||Ballet Flats" aria-pressed="false">Ballet Flats 118</button><button data-f="Shoes||Boots" aria-pressed="false">Boots 88</button><button data-f="Shoes||Flats" aria-pressed="false">Flats 82</button><button data-f="Shoes||Espadrilles" aria-pressed="false">Espadrilles 41</button><button data-f="Shoes||Derby Shoes" aria-pressed="false">Derby Shoes 15</button><button data-f="Shoes||Chelsea Boots" aria-pressed="false">Chelsea Boots 13</button><button data-f="Shoes||Monk Straps" aria-pressed="false">Monk Straps 1</button><button data-f="Shoes||Wedges" aria-pressed="false">Wedges 1</button><span class="grp">Accessories</span><button data-f="Accessories||Sunglasses" aria-pressed="false">Sunglasses 486</button><button data-f="Accessories||Optical" aria-pressed="false">Optical 41</button><button data-f="Accessories||Scarves" aria-pressed="false">Scarves 18</button><button data-f="Accessories||Hats" aria-pressed="false">Hats 12</button><span class="grp">Jewellery</span><button data-f="Jewellery||Earrings" aria-pressed="false">Earrings 1</button></div></div>
+  <div class="seg wrapseg" id="filt"><button data-f="all" aria-pressed="true">All 3971</button><span class="grp">Shoes</span><button data-f="Shoes||Heels" aria-pressed="false">Heels 837</button><button data-f="Shoes||Sneakers" aria-pressed="false">Sneakers 819</button><button data-f="Shoes||Slides" aria-pressed="false">Slides 577</button><button data-f="Shoes||Boots" aria-pressed="false">Boots 437</button><button data-f="Shoes||Mules" aria-pressed="false">Mules 283</button><button data-f="Shoes||Mary Janes" aria-pressed="false">Mary Janes 250</button><button data-f="Shoes||Ballet Flats" aria-pressed="false">Ballet Flats 212</button><button data-f="Shoes||Loafers" aria-pressed="false">Loafers 202</button><button data-f="Shoes||Ankle Boots" aria-pressed="false">Ankle Boots 190</button><button data-f="Shoes||Sandals" aria-pressed="false">Sandals 179</button><button data-f="Shoes||Knee-High Boots" aria-pressed="false">Knee-High Boots 159</button><button data-f="Shoes||Platforms" aria-pressed="false">Platforms 83</button><button data-f="Shoes||Flats" aria-pressed="false">Flats 82</button><button data-f="Shoes||Espadrilles" aria-pressed="false">Espadrilles 63</button><button data-f="Shoes||Wedges" aria-pressed="false">Wedges 24</button><button data-f="Shoes||Derby Shoes" aria-pressed="false">Derby Shoes 15</button><button data-f="Shoes||Chelsea Boots" aria-pressed="false">Chelsea Boots 13</button><button data-f="Shoes||Monk Straps" aria-pressed="false">Monk Straps 1</button><span class="grp">Accessories</span><button data-f="Accessories||Sunglasses" aria-pressed="false">Sunglasses 486</button><button data-f="Accessories||Optical" aria-pressed="false">Optical 41</button><button data-f="Accessories||Scarves" aria-pressed="false">Scarves 18</button><button data-f="Accessories||Hats" aria-pressed="false">Hats 12</button><span class="grp">Jewellery</span><button data-f="Jewellery||Earrings" aria-pressed="false">Earrings 1</button></div></div>
 </div></header>
 <div class="wrap"><div class="showing" id="count">loading…</div><div class="grid" id="grid"></div><div id="more"></div><div class="empty" id="empty" hidden>Nothing matches that filter.</div></div>
 <footer><div class="wrap">Generated 8/18/2026, 6:56:51 PM · shop 1: supplier ¥ → GEL 0.3873 · shops 2-3: operator cost $35-45 @ 2.70 GEL/USD — then the store commission tiers · nothing here has been written to the live store.</div></footer>
@@ -127,6 +127,9 @@ const FIX_LABEL = {"price":"Set a price","brand":"Identify the brand","name":"Im
 const esc=(s)=>String(s??'').replace(/[&<>"]/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let lang='en',filt='all',q='';
 const L=(r,f)=>lang==='en'?r[f]:(r.translations?.[lang]?.[f]?.trim()||r[f]);
+// Every subcategory an item belongs to, primary first. A strapped ballerina is
+// a Mary Jane AND a Ballet Flat, so it shows under both filters.
+const SUBS=(r)=>(r.subcategories&&r.subcategories.length)?r.subcategories:(r.subcategory?[r.subcategory]:[]);
 // The card is a div, not a button: it contains a real anchor to the supplier
 // post, and an <a> inside a <button> is invalid and unclickable in some browsers.
 function cardHTML(r,i,noted){return `
@@ -137,7 +140,7 @@ function cardHTML(r,i,noted){return `
       ${r.variantCount>1?`<span class="ways">${r.variantCount} colourways</span>`:''}
       ${r.sourceUrl?`<a class="open" href="${esc(r.sourceUrl)}" target="_blank" rel="noopener">Seller ↗</a>`:''}
     </div>
-    <div class="brand">${esc(r.brand||'Unbranded')}${r.subcategory?` · <span class="sub">${esc(r.subcategory)}</span>`:''}</div>
+    <div class="brand">${esc(r.brand||'Unbranded')}${SUBS(r).length?` · <span class="sub">${esc(SUBS(r).join(' + '))}</span>`:''}</div>
     <div class="nm">${esc(L(r,'name'))}</div>
     <div class="price">${r.price?'₾'+r.price:'price to set'}${r.priceCny?` <s>¥${r.priceCny}</s>`:''}</div>
     ${(r.fixes&&r.fixes.length)?`<div class="fixes">${r.fixes.map(f=>`<span class="fix">${FIX_LABEL[f]||f}</span>`).join('')}</div>`:''}
@@ -171,7 +174,7 @@ function detailHTML(r){
           <b>${r.price?'₾'+r.price:'to set'}</b></div></dd></div>
         <div class="row"><dt>Colour</dt><dd>${esc(r.color||'—')}${ka.color?' · '+esc(ka.color):''}${ru.color?' · '+esc(ru.color):''}</dd></div>
         <div class="row"><dt>Sizes</dt><dd><div class="chips">${r.sizes.map((s)=>`<span class="chip">${esc(s)}</span>`).join('')}</div></dd></div>
-        <div class="row"><dt>Placement</dt><dd>${esc(r.section)} · ${esc(r.category)}${r.subcategory?' · '+esc(r.subcategory):''} <span class="muted">(type: ${esc(r.type)})</span></dd></div>
+        <div class="row"><dt>Placement</dt><dd>${esc(r.section)} · ${esc(r.category)}${SUBS(r).length?' · '+esc(SUBS(r).join(' + ')):''} <span class="muted">(primary type: ${esc(r.type)})</span></dd></div>
         <div class="row"><dt>Delivery</dt><dd>${esc(L(r,'lead'))}</dd></div>
         <div class="row"><dt>Photos</dt><dd>${r.images.length} shown · ${r.variantCount} colourway(s)</dd></div>
         <div class="row"><dt>Status</dt><dd class="${r.blockers.length?'blockers':''}">${r.blockers.length?esc(r.blockers.join(' · ')):'Passes every publish rule'}</dd></div>
@@ -233,10 +236,11 @@ function visible(){const n=q.trim().toLowerCase();return ROWS.filter(r=>{
   if(filt!=='all'){
     const [c,s]=filt.split('||');
     if(r.category!==c)return false;
-    if((r.subcategory||'Unclassified')!==s)return false;
+    const subs=(r.subcategories&&r.subcategories.length)?r.subcategories:[r.subcategory||'Unclassified'];
+    if(!subs.includes(s))return false;
   }
   if(!n)return true;
-  return [r.name,r.brand,r.category,r.type,r.translations?.ka?.name,r.translations?.ru?.name].filter(Boolean).join(' ').toLowerCase().includes(n);});}
+  return [r.name,r.brand,r.category,r.type,...(r.subcategories||[]),r.translations?.ka?.name,r.translations?.ru?.name].filter(Boolean).join(' ').toLowerCase().includes(n);});}
 function render(){paintList(visible());}
 function openItem(i){const d=document.getElementById('dlg');d.innerHTML=detailHTML(ROWS[i]);d.showModal();}
 
