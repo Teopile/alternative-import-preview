@@ -131,7 +131,11 @@
 <footer><div class="wrap">Generated 8/26/2026, 9:46:31 PM · CNY→GEL 0.3873; most of this shop quotes by chat, so few listings carry a price · nothing here has been written to the live store.</div></footer>
 <dialog id="dlg"></dialog>
 <script>
-const DATA_URL = "data-held.json";
+// Cache-busted per build. The data file keeps the same NAME every time, so a
+// browser that has seen it once serves the old copy and the page looks stale
+// even when the deploy succeeded — which is exactly what happened after the
+// catalogue was swapped.
+const DATA_URL = "data-held.json" + '?v=mtae2s7t';
 let ROWS = [];
 const REASON_LABEL = {"price":"Needs a price","brand":"No brand in the text","allow":"Brand not approved"};
 const FIX_LABEL = {"price":"Set a price","brand":"Identify the brand","name":"Improve the name","approve-brand":"Approve the brand"};
